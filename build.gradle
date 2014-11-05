@@ -1,0 +1,114 @@
+apply plugin: 'java'
+
+apply plugin: 'war'
+apply plugin: 'org.akhikhl.gretty'
+
+//The following two plugins conflict with gretty
+//apply plugin: 'jetty'
+//apply plugin: 'tomcat'
+
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'http://repo.spring.io/plugins-release' }
+  }
+
+  dependencies {
+//    classpath 'org.gradle.api.plugins:gradle-tomcat-plugin:1.2.4'
+    classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.6'
+    
+    classpath 'org.akhikhl.gretty:gretty:+'
+  }
+}
+
+gretty {
+	contextPath = '/'
+	servletContainer = 'jetty9'
+}
+
+repositories {
+  mavenCentral()
+  maven { url 'http://repo.spring.io/libs-release'}
+  jcenter()
+  //maven { url 'http://repo.spring.io/milestone/'}
+}
+
+dependencies {
+//    def tomcatVersion = '8.0.9'
+//    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+//            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+//    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+//      exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+//    }
+    
+  ['spring-core', 'spring-webmvc', 'spring-orm', 'spring-aop', 'spring-beans', 'spring-tx', 'spring-expression', 'spring-context'].each {
+    compile "org.springframework:$it:4.1.1.RELEASE"
+  }
+
+  compile 'org.hibernate:hibernate-validator:5.1.2.Final'
+  compile 'com.jayway.jsonpath:json-path:0.9.1'
+  compile 'org.springframework.hateoas:spring-hateoas:0.16.0.RELEASE'
+
+  compile 'org.springframework.security:spring-security-web:3.2.4.RELEASE'
+  compile 'org.springframework.security:spring-security-core:3.2.4.RELEASE'
+  compile 'org.springframework.security:spring-security-config:3.2.4.RELEASE'
+    
+  compile 'org.springframework.data:spring-data-mongodb:1.5.2.RELEASE'
+  compile 'org.springframework.data:spring-data-jpa:1.6.2.RELEASE'
+  compile 'org.springframework.data:spring-data-gemfire:1.4.2.RELEASE'
+  //compile 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final'
+  compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Draft-16'
+  compile 'org.hibernate:hibernate-entitymanager:4.3.6.Final'
+  compile 'com.h2database:h2:1.4.180'
+  compile 'cglib:cglib:3.1'
+    
+  compile 'com.alibaba:druid:1.0.7'
+  compile 'cn.guoyukun.jdbc:oracle-ojdbc6:11.2.0.3.0'
+  //compile 'com.oracle:ojdbc14:10.2.0.5.0'
+
+  compile 'org.slf4j:slf4j-api:1.7.7'
+  runtime 'org.slf4j:jcl-over-slf4j:1.7.7'
+  runtime 'org.slf4j:jul-to-slf4j:1.7.7'
+  runtime 'ch.qos.logback:logback-core:1.1.2'
+  runtime 'ch.qos.logback:logback-classic:1.1.2'
+  runtime 'ch.qos.logback:logback-access:1.1.2'
+
+  runtime 'com.fasterxml.jackson.core:jackson-core:2.4.1.1'
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.4.1'
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1.3'
+  runtime 'javax.xml.bind:jaxb-api:2.2.11'
+
+  //provided 'javax.servlet:javax.servlet-api:3.0.1'
+  providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+
+  testCompile 'com.jayway.jsonpath:json-path-assert:0.9.1'
+  testCompile 'org.springframework:spring-test:4.1.1.RELEASE'
+  testCompile 'junit:junit:4.+'
+  testCompile "org.mockito:mockito-all:1.9.5"
+  testCompile 'javax.el:javax.el-api:3.0.1-b04'
+  testCompile 'org.eclipse.jetty.orbit:com.sun.el:2.2.0.v201303151357'
+}
+
+task runLocalGemfireServer(type: JavaExec) {
+  description = 'Runs a simple Gemfire Cache Server'
+  main = "com.yummynoodlebar.persistence.services.LocalGemfireServer"
+  classpath = sourceSets.main.runtimeClasspath
+  standardInput = System.in
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.0'
+}
+
+//tomcatRunWar.contextPath = ''
+//jettyRunWar.contextPath = ''
